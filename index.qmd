@@ -1,0 +1,224 @@
+---
+title: "Impact of Climate Variables on Crop Yield: A Statistical Analysis"
+short-title: "Climate and Crop Yield Analysis"
+authors:
+  - name: Author One
+    affiliations:
+      - name: Department of Environmental Science
+        institution: University A
+        city: City A
+        country: Country A
+    orcid: 0000-0002-1234-5678
+    email: author1@university.edu
+    roles: 
+      - conceptualization
+      - methodology
+      - writing
+    corresponding: true
+  - name: Author Two
+    affiliations:
+      - name: Institute for Climate Research
+        institution: University B
+        city: City B
+        country: Country B
+    orcid: 0000-0003-9876-5432
+    roles:
+      - data curation
+      - formal analysis
+  - name: Author Three
+    affiliations:
+      - name: Department of Statistics
+        institution: University C
+        city: City C
+        country: Country C
+    roles:
+      - visualization
+      - validation
+date: today
+abstract: |
+  Climate change poses significant challenges to global food security. This study examines the relationship between key climate variables (temperature and precipitation) and crop yield across multiple growing seasons. Using statistical modeling on a dataset of 150 agricultural sites over five years, we demonstrate that temperature increases above 28°C result in a 12% decrease in yield (p < 0.001), while optimal precipitation levels (600-800mm) correlate with maximum productivity. Our findings suggest that adaptive agricultural strategies must account for regional climate variability to maintain food production stability.
+keywords:
+  - climate change
+  - crop yield
+  - agriculture
+  - statistical modeling
+  - food security
+bibliography: references.bib
+format:
+  html:
+    toc: true
+    code-fold: true
+    theme: cosmo
+  docx:
+    toc: true
+    number-sections: true
+    highlight-style: github
+  pdf:
+    keep-tex: true
+execute:
+  echo: true
+  warning: false
+  message: false
+---
+
+::: {.callout-warning}
+## Demo Notice
+This manuscript uses **fictional data** generated for demonstration purposes only. It showcases Quarto manuscript formatting and is not based on real research.
+:::
+## Introduction
+
+Agricultural productivity is fundamentally dependent on climatic conditions, with temperature and precipitation serving as primary determinants of crop success [@smith2020]. Recent decades have witnessed unprecedented climate variability, raising concerns about long-term food security [@jones2019]. While previous studies have examined isolated climate factors, comprehensive analyses integrating multiple variables across diverse geographical contexts remain limited.
+
+This research addresses three key questions: (1) How do temperature extremes affect crop yield? (2) What is the optimal precipitation range for maximizing productivity? (3) Can we develop predictive models for yield based on climate data? Understanding these relationships is crucial for developing climate-resilient agricultural practices [@brown2021].
+
+## Results
+
+### Climate-Yield Relationships
+
+Our analysis of 150 agricultural sites revealed significant correlations between climate variables and crop yield (Figure 1). Temperature emerged as the dominant factor, with yields declining sharply above 28°C. The relationship between temperature and yield follows a quadratic pattern, with optimal productivity occurring at 24-26°C.
+
+```{r}
+#| label: fig-climate-yield
+#| fig-cap: "Relationship between temperature, precipitation, and crop yield. Points represent individual site-years (n=750). Colors indicate precipitation levels: low (<500mm, red), optimal (500-800mm, green), high (>800mm, blue)."
+#| fig-width: 8
+#| fig-height: 5
+
+library(ggplot2)
+library(dplyr)
+
+# Generate synthetic data matching our findings
+set.seed(123)
+n <- 750
+
+data <- data.frame(
+  temperature = rnorm(n, mean = 25, sd = 4),
+  precipitation = rnorm(n, mean = 650, sd = 200)
+) %>%
+  mutate(
+    # Yield model: optimal at 25°C, decreases with deviation
+    # Optimal precipitation 600-800mm
+    yield = 100 + 
+      -0.8 * (temperature - 25)^2 + 
+      0.05 * precipitation - 
+      0.00004 * precipitation^2 +
+      rnorm(n, 0, 5),
+    yield = pmax(yield, 40), # Minimum yield floor
+    precip_category = case_when(
+      precipitation < 500 ~ "Low (<500mm)",
+      precipitation <= 800 ~ "Optimal (500-800mm)",
+      TRUE ~ "High (>800mm)"
+    )
+  )
+
+ggplot(data, aes(x = temperature, y = yield, color = precip_category)) +
+  geom_point(alpha = 0.6, size = 2) +
+  geom_smooth(method = "loess", se = FALSE, linewidth = 1.2) +
+  scale_color_manual(values = c("Low (<500mm)" = "#e74c3c",
+                                  "Optimal (500-800mm)" = "#27ae60",
+                                  "High (>800mm)" = "#3498db")) +
+  labs(
+    x = "Temperature (°C)",
+    y = "Crop Yield (tons/hectare)",
+    color = "Precipitation Level"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    legend.position = "bottom",
+    panel.grid.minor = element_blank()
+  )
+```
+
+### Statistical Model Performance
+
+We developed multiple regression models to predict yield based on climate variables. The best-performing model (adjusted R² = 0.67, RMSE = 6.2 tons/ha) incorporated both linear and quadratic temperature terms, along with precipitation and their interaction [@wilson2018].
+
+```{r}
+#| label: tbl-model-summary
+#| tbl-cap: "Multiple regression model results for crop yield prediction. Significant predictors (p < 0.001) are highlighted."
+
+# Fit regression model
+model <- lm(yield ~ temperature + I(temperature^2) + precipitation + 
+              I(precipitation^2) + temperature:precipitation, data = data)
+
+# Create summary table
+summary_df <- data.frame(
+  Predictor = c("Intercept", "Temperature", "Temperature²", 
+                "Precipitation", "Precipitation²", "Temp × Precip"),
+  Coefficient = round(coef(model), 4),
+  `Std. Error` = round(summary(model)$coefficients[, 2], 4),
+  `t-value` = round(summary(model)$coefficients[, 3], 2),
+  `p-value` = format.pval(summary(model)$coefficients[, 4], eps = 0.001)
+)
+
+knitr::kable(summary_df, align = "lrrrr")
+```
+
+Model diagnostics indicated good fit with no severe violations of regression assumptions (Supplementary Figure S1).
+
+## Discussion
+
+Our findings demonstrate that crop yield exhibits strong sensitivity to temperature thresholds, consistent with physiological stress responses documented in controlled experiments [@davis2017]. The 28°C inflection point aligns with known thermal limits for key metabolic processes in major crops.
+
+The precipitation optimum (600-800mm) reflects a balance between water availability and waterlogging stress. Sites receiving less than 500mm showed yield reductions of 18%, while excessive precipitation (\>1000mm) also decreased productivity by 15%, likely due to soil saturation and disease pressure [@taylor2022].
+
+These results have important implications for climate adaptation strategies. In regions projected to exceed 28°C regularly, interventions such as shade management, altered planting dates, or heat-tolerant cultivar selection may be necessary. Similarly, irrigation scheduling should target the 600-800mm range to optimize returns.
+
+Limitations of this study include the focus on annual crops in temperate zones, which may limit generalizability to tropical systems or perennial species. Future research should incorporate soil properties and extreme weather events into predictive models.
+
+## Methods
+
+### Study Sites and Data Collection
+
+We analyzed data from 150 agricultural sites across five climatically diverse regions (2018-2022). Sites were selected to represent a range of temperature (15-35°C annual mean) and precipitation (300-1200mm annual) conditions. Crop yield data (tons/hectare) were obtained from farm records and verified through satellite-based vegetation indices [@anderson2016].
+
+### Climate Data
+
+Daily temperature and precipitation measurements were obtained from co-located weather stations within 5km of each site. Annual means were calculated for the growing season (April-September in northern hemisphere sites). Data quality control followed standard meteorological protocols [@clark2015].
+
+### Statistical Analysis
+
+We employed multiple regression analysis to model yield as a function of climate variables. Model selection used stepwise AIC minimization, with polynomial terms included to capture non-linear relationships. All analyses were performed in R version 4.3.0 [@rcoreteam2023] using the `lme4` package for mixed-effects models to account for site-level random effects.
+
+### Data Availability
+
+All data and code are available at https://github.com/repository/data (DOI: 10.5281/zenodo.123456).
+
+## Acknowledgements
+
+We thank the cooperating farms for providing yield data and weather services for climate records. This work was supported by Research Grant No. 1234567.
+
+## Author Contributions
+
+Author One conceived the study, conducted analyses, and wrote the manuscript. Author Two compiled climate datasets and performed validation analyses. Author Three created visualizations and performed statistical diagnostics. All authors reviewed and approved the final manuscript.
+
+## Competing Interests
+
+The authors declare no competing interests.
+
+## References
+
+::: {#refs}
+:::
+
+------------------------------------------------------------------------
+
+## Supplementary Information
+
+### Supplementary Methods
+
+**Site Selection Criteria**: Sites were required to have continuous yield records for ≥3 years and weather station data within 5km.
+
+### Supplementary Results
+
+```{r}
+#| label: fig-diagnostics
+#| fig-cap: "Supplementary Figure S1: Regression diagnostic plots showing residual distribution and homoscedasticity."
+#| fig-width: 8
+#| fig-height: 4
+
+par(mfrow = c(1, 2))
+plot(model, which = 1, main = "Residuals vs Fitted")
+plot(model, which = 2, main = "Q-Q Plot")
+```
+
+**Supplementary Table S1**: Regional breakdown of site characteristics (available upon request).
