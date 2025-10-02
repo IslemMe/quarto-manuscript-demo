@@ -16,4 +16,4 @@ A complete example of a scientific manuscript using Quarto.
 5. Use this template to generate your submission-ready paper
 
 ## Note
-⚠️ This is a **fictional dataset** for demonstration purposes only.
+⚠️ This demo uses a **fictional dataset** for demonstration purposes only.
