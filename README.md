@@ -4,8 +4,7 @@ A complete example of a scientific manuscript using Quarto.
 
 ## Requirements
 - R (version 4.0+)
-- RStudio (recommended)
-- Quarto (1.4+)
+- RStudio
 - R packages: `ggplot2`, `dplyr`
 
 ## Quick Start
